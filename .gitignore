@@ -1,5 +1,6 @@
 build*
 .vscode
+.vs
 .DS_Store
 *.o
 *.obj
@@ -13,3 +14,4 @@ libimp*.a
 *.fpc
 *.res
 **/tmp
+out*

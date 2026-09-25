@@ -26,7 +26,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Use static MSVC runtime on Windows (/MT or /MTd) so the binary
 # has no dependency on the MSVC Redistributable.
 if(MSVC)
-    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+    # Use the DLL version of the MSVC runtime to match prebuilt phoenix_gi
+    # binaries which are typically built against the dynamic CRT (MD/MDd).
+    # Change to MultiThreaded (static) if you rebuild phoenix_gi with /MT.
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL$<$<CONFIG:Debug>:Debug>")
 endif()
 
 # ---------------------------------------------------------------------------

@@ -1,5 +1,6 @@
 #include <cmath>
 #include <string>
+#include <memory>
 #include "wx/wx.h"
 #include "wx/defs.h"
 #include "wx_bgi_wx.h"
@@ -11,13 +12,27 @@
 
 using namespace bgi;
 
+// Push MSVC warning state and disable padding warning for this class.
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable:4820)
+#endif
 class DoughnutCanvas : public wxbgi::WxBgiCanvas
 {
 public:
+    // Explicitly delete copy/move operations to make intent clear and avoid
+    // warnings about implicitly deleted special members.
+    DoughnutCanvas(const DoughnutCanvas&) = delete;
+    DoughnutCanvas& operator=(const DoughnutCanvas&) = delete;
+    DoughnutCanvas(DoughnutCanvas&&) = delete;
+    DoughnutCanvas& operator=(DoughnutCanvas&&) = delete;
+
     explicit DoughnutCanvas(wxWindow* parent)
-        : WxBgiCanvas(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize),
-          m_timer(this)
+        : WxBgiCanvas(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize)
     {
+        // Construct the timer after 'this' is valid to avoid using 'this' in
+        // the member initializer list (prevents C4355 warning).
+        m_timer = std::make_unique<wxTimer>(this);
         Bind(wxEVT_TIMER, &DoughnutCanvas::OnTimer, this);
     }
 
@@ -30,7 +45,7 @@ protected:
             m_viewHeight = h;
             setupCamera(w, h);
             buildScene();
-            m_timer.Start(30);
+            if (m_timer) m_timer->Start(30);
         }
         else if (w != m_viewWidth || h != m_viewHeight) {
             m_viewWidth = w;
@@ -107,15 +122,24 @@ private:
         setviewport(0, 0, w - 1, h - 1, 0);
     }
 
-    bool   m_ready{false};
+    // Reorder members to reduce padding: place larger types first.
     int    m_viewWidth{0};
     int    m_viewHeight{0};
     float  m_phase{0.0f};
-    wxTimer m_timer;
+    bool   m_ready{false};
+    std::unique_ptr<wxTimer> m_timer;
 };
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 class MainFrame : public wxFrame
 {
+public:
+    MainFrame(const MainFrame&) = delete;
+    MainFrame& operator=(const MainFrame&) = delete;
+    MainFrame(MainFrame&&) = delete;
+    MainFrame& operator=(MainFrame&&) = delete;
 public:
     MainFrame()
         : wxFrame(nullptr, wxID_ANY, "CBlit CAD — Rotating Doughnut", wxDefaultPosition, wxSize(980, 800))
@@ -155,4 +179,15 @@ public:
     }
 };
 
-wxIMPLEMENT_APP(CBlitApp);
+// Make application class non-copyable/movable to silence warnings about
+// implicitly deleted special members.
+class CBlitAppNonCopyable : public CBlitApp {
+public:
+    CBlitAppNonCopyable() = default;
+    CBlitAppNonCopyable(const CBlitAppNonCopyable&) = delete;
+    CBlitAppNonCopyable& operator=(const CBlitAppNonCopyable&) = delete;
+    CBlitAppNonCopyable(CBlitAppNonCopyable&&) = delete;
+    CBlitAppNonCopyable& operator=(CBlitAppNonCopyable&&) = delete;
+};
+
+wxIMPLEMENT_APP(CBlitAppNonCopyable);
