@@ -42,12 +42,12 @@ if(WIN32)
 elseif(APPLE)
     add_library(phoenix_gi::phoenix SHARED IMPORTED)
     set_target_properties(phoenix_gi::phoenix PROPERTIES
-        IMPORTED_LOCATION "${_phoenix_root}/lib/libphoenix_gi.dylib"
+        IMPORTED_LOCATION "${_phoenix_root}/lib/phoenix_gi.dylib"
         INTERFACE_INCLUDE_DIRECTORIES "${_phoenix_headers}")
 else()
     add_library(phoenix_gi::phoenix SHARED IMPORTED)
     set_target_properties(phoenix_gi::phoenix PROPERTIES
-        IMPORTED_LOCATION "${_phoenix_root}/lib/libphoenix_gi.so"
+        IMPORTED_LOCATION "${_phoenix_root}/lib/phoenix_gi.so"
         INTERFACE_INCLUDE_DIRECTORIES "${_phoenix_headers}")
 endif()
 
