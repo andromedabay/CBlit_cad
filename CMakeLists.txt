@@ -1,8 +1,12 @@
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
+if(POLICY CMP0091)
+	cmake_policy(SET CMP0091 NEW)
+endif()
+
 project(cblit_cad LANGUAGES C CXX)
 
-set(VERSION_wx_bgi "v2.8.41")
+set(VERSION_wx_bgi "v2.8.44")
 
 # Option to use the wxWidgets binary bundled inside the phoenix_gi package
 # Enable using the wxWidgets binary bundled with the phoenix_gi package by default.

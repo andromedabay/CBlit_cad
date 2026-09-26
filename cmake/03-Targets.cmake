@@ -4,6 +4,10 @@ if(APPLE)
     add_executable(CBlit_cad MACOSX_BUNDLE
         src/main.cpp
     )
+elseif(WIN32)
+    add_executable(CBlit_cad WIN32
+        src/main.cpp
+    )
 else()
     add_executable(CBlit_cad
         src/main.cpp
@@ -26,14 +30,27 @@ elseif(WXBGI_GRAPHICS_LIBS)
     target_link_libraries(CBlit_cad PRIVATE ${WXBGI_GRAPHICS_LIBS})
 endif()
 
-if(TARGET wx::core AND TARGET wx::base)
-    target_link_libraries(CBlit_cad PRIVATE wx::core wx::base)
+if(TARGET wx::mono)
+    target_link_libraries(CBlit_cad PRIVATE wx::mono)
+    if(TARGET phoenix_gi::wx_wrapper)
+        target_link_libraries(CBlit_cad PRIVATE
+            phoenix_gi::wx_wrapper
+            phoenix_gi::glew
+            OpenGL::GL
+        )
+    endif()
 elseif(wxWidgets_LIBRARIES)
     target_link_libraries(CBlit_cad PRIVATE ${wxWidgets_LIBRARIES})
 endif()
 
 target_link_options(CBlit_cad PRIVATE)
 target_compile_features(CBlit_cad PRIVATE cxx_std_20)
+if(MSVC AND WXBGI_USE_BUILTIN_WX)
+    set_property(TARGET CBlit_cad PROPERTY MSVC_RUNTIME_LIBRARY MultiThreadedDLL)
+    target_compile_definitions(CBlit_cad PRIVATE
+        "$<$<CONFIG:Debug>:_ITERATOR_DEBUG_LEVEL=0>"
+    )
+endif()
 # Use MSVC-specific warning flags on Windows, otherwise use GCC/Clang flags.
 if(MSVC)
     # Use /W4 warning level on MSVC; /WX treats warnings as errors.
@@ -61,6 +78,15 @@ if(WXBGI_GRAPHICS_RUNTIME)
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
             "${WXBGI_GRAPHICS_RUNTIME}"
             "$<TARGET_FILE_DIR:CBlit_cad>"
+    )
+endif()
+
+if(TARGET wx::mono AND WXBGI_USE_BUILTIN_WX)
+    add_custom_command(TARGET CBlit_cad POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "$<TARGET_FILE:wx::mono>"
+            "$<TARGET_FILE_DIR:CBlit_cad>"
+        VERBATIM
     )
 endif()
 

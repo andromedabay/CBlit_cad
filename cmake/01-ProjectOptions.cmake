@@ -29,7 +29,7 @@ if(MSVC)
     # Use the DLL version of the MSVC runtime to match prebuilt phoenix_gi
     # binaries which are typically built against the dynamic CRT (MD/MDd).
     # Change to MultiThreaded (static) if you rebuild phoenix_gi with /MT.
-    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL$<$<CONFIG:Debug>:Debug>")
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
 endif()
 
 # ---------------------------------------------------------------------------
