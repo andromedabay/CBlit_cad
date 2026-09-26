@@ -90,6 +90,10 @@ private:
         wxbgi_solid_set_diffuse(0.70f);
         wxbgi_solid_set_specular(0.45f, 56.0f);
 
+        wxbgi_solid_set_face_color(wxbgi_alloc_color(235, 78, 38));
+        wxbgi_solid_set_edge_color(WHITE);
+        wxbgi_solid_box(2.4f, 0.0f, 3.0f, 1.5f, 1.2f, 1.6f);
+
         setcolor(DARKGRAY);
         for (int i = -4; i <= 4; ++i) {
             wxbgi_world_line((float)i, -4.0f, 0.0f, (float)i, 4.0f, 0.0f);
@@ -142,7 +146,7 @@ public:
     MainFrame& operator=(MainFrame&&) = delete;
 public:
     MainFrame()
-        : wxFrame(nullptr, wxID_ANY, "CBlit CAD — Rotating Doughnut", wxDefaultPosition, wxSize(980, 800))
+        : wxFrame(nullptr, wxID_ANY, "CBlit CAD - Rotating Doughnut", wxDefaultPosition, wxSize(980, 800))
     {
         SetBackgroundColour(*wxBLACK);
 
@@ -160,7 +164,7 @@ public:
         SetSizerAndFit(sizer);
 
         CreateStatusBar();
-        SetStatusText("wx_bgi_graphics 3D doughnut demo");
+        SetStatusText("Phoenix_gi - 3D doughnut demo");
     }
 };
 

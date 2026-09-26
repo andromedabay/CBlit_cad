@@ -20,32 +20,13 @@ target_include_directories(CBlit_cad SYSTEM PRIVATE
     ${WXBGI_GRAPHICS_INCLUDE_DIRS}
 )
 
-target_link_libraries(CBlit_cad PRIVATE
-)
-
-# Prefer imported targets when available (phoenix_gi::phoenix, wx::core/wx::base).
-if(TARGET phoenix_gi::phoenix)
-    target_link_libraries(CBlit_cad PRIVATE phoenix_gi::phoenix)
-elseif(WXBGI_GRAPHICS_LIBS)
-    target_link_libraries(CBlit_cad PRIVATE ${WXBGI_GRAPHICS_LIBS})
+target_link_libraries(CBlit_cad PRIVATE phoenix_gi::phoenix wx::mono)
+if(TARGET phoenix_gi::wx_wrapper)
+    target_link_libraries(CBlit_cad PRIVATE phoenix_gi::wx_wrapper phoenix_gi::glew)
 endif()
 
-if(TARGET wx::mono)
-    target_link_libraries(CBlit_cad PRIVATE wx::mono)
-    if(TARGET phoenix_gi::wx_wrapper)
-        target_link_libraries(CBlit_cad PRIVATE
-            phoenix_gi::wx_wrapper
-            phoenix_gi::glew
-            OpenGL::GL
-        )
-    endif()
-elseif(wxWidgets_LIBRARIES)
-    target_link_libraries(CBlit_cad PRIVATE ${wxWidgets_LIBRARIES})
-endif()
-
-target_link_options(CBlit_cad PRIVATE)
 target_compile_features(CBlit_cad PRIVATE cxx_std_20)
-if(MSVC AND WXBGI_USE_BUILTIN_WX)
+if(MSVC)
     set_property(TARGET CBlit_cad PROPERTY MSVC_RUNTIME_LIBRARY MultiThreadedDLL)
     target_compile_definitions(CBlit_cad PRIVATE
         "$<$<CONFIG:Debug>:_ITERATOR_DEBUG_LEVEL=0>"
@@ -73,31 +54,24 @@ set_target_properties(CBlit_cad PROPERTIES
 # executable so it can be found at runtime. WXBGI_GRAPHICS_RUNTIME is set by
 # the top-level CMakeLists when the FetchContent package provides platform
 # specific artifacts.
-if(WXBGI_GRAPHICS_RUNTIME)
-    add_custom_command(TARGET CBlit_cad POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${WXBGI_GRAPHICS_RUNTIME}"
-            "$<TARGET_FILE_DIR:CBlit_cad>"
-    )
-endif()
+add_custom_command(TARGET CBlit_cad POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${WXBGI_GRAPHICS_RUNTIME}"
+        "$<TARGET_FILE_DIR:CBlit_cad>"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${WXBGI_WX_RUNTIME}"
+        "$<TARGET_FILE_DIR:CBlit_cad>"
+    VERBATIM
+)
 
-if(TARGET wx::mono AND WXBGI_USE_BUILTIN_WX)
-    add_custom_command(TARGET CBlit_cad POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "$<TARGET_FILE:wx::mono>"
-            "$<TARGET_FILE_DIR:CBlit_cad>"
-        VERBATIM
-    )
-endif()
-
-message(STATUS "Checking if RPATH is defined for CBlit_cad...")
 if(DEFINED WXBGI_APP_RPATH AND UNIX)
     message(STATUS "Setting rpath for CBlit_cad to ${WXBGI_APP_RPATH}")
     target_link_options(CBlit_cad PRIVATE "-Wl,-rpath,${WXBGI_APP_RPATH}")
-    add_custom_command(TARGET CBlit_cad POST_BUILD
+    if(DEFINED WXBGI_OPENGL_LIB)
+        add_custom_command(TARGET CBlit_cad POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
             "${WXBGI_OPENGL_LIB}"
             "$<TARGET_FILE_DIR:CBlit_cad>"
-    )
+        VERBATIM)
+    endif()
 endif()
-message(STATUS "Completed.")
