@@ -81,10 +81,10 @@ private:
         wxbgi_dds_clear();
         cleardevice();
 
-        settextstyle(MODERN_ROBOTO_FONT, HORIZ_DIR, 2);
+        settextstyle(MODERN_HANDJET_FONT, HORIZ_DIR, 4);
         setcolor(YELLOW);
-        std::string line = "Roboto: 3D doughnut demo";
-        outtextxy(0.13f, 0.05f, line.data());
+        std::string line = "Handjet Font: 3D doughnut demo";
+        outtextxy(-3.6f, -1.75f, line.data());
 
         wxbgi_solid_set_draw_mode(WXBGI_SOLID_SMOOTH);
         wxbgi_solid_set_edge_color(WHITE);
